@@ -1,7 +1,6 @@
 import React from 'react';
 import { Document, Page, Text, View, StyleSheet, Image } from '@react-pdf/renderer';
 
-// Tipos
 interface Medication {
     id: string;
     name: string;
@@ -26,6 +25,7 @@ interface PrescriptionData {
     date: string;
     patientName: string;
     clinicHistory: string;
+    diseaseTypeCode: string;
     identification: string;
     years: string;
     months: string;
@@ -232,6 +232,20 @@ const styles = StyleSheet.create({
         flex: 1,
         fontSize: 10,
         fontWeight: 'bold',
+        color: '#000000',
+        textAlign: 'center',
+    },
+    tableCellMedValue: {
+        flex: 3,
+        fontSize: 10,
+        color: '#000000',
+        borderRightWidth: 1,
+        borderRightColor: '#000000',
+        padding: 3,
+    },
+    tableCellQtyValue: {
+        flex: 1,
+        fontSize: 10,
         color: '#000000',
         textAlign: 'center',
     },
@@ -455,16 +469,16 @@ export const PrescriptionPDF: React.FC<PrescriptionPDFProps> = ({ data }) => (
                     <View style={styles.headerMiddle}>
                         <View style={styles.headerText}>
                             <Text style={styles.institutionName}>
-                                {data.institution || 'MINISTERIO DE SALUD PÚBLICA'}
+                                MINISTERIO DE SALUD PÚBLICA
                             </Text>
                             <Text style={styles.institutionDetails}>
-                                {data.coordination || 'COORDINACIÓN ZONAL 9'}
+                                COORDINACIÓN ZONAL 9
                             </Text>
                             <Text style={styles.institutionDetails}>
-                                {data.district || 'DISTRITO 17D06'}
+                                DISTRITO 17D06
                             </Text>
                             <Text style={styles.institutionDetails}>
-                                {data.healthCenter || 'CHILIBULO A LLOA SALUD'}
+                                CHILIBULO A LLOA SALUD
                             </Text>
                         </View>
                     </View>
@@ -492,7 +506,8 @@ export const PrescriptionPDF: React.FC<PrescriptionPDFProps> = ({ data }) => (
                         <Text style={styles.patientValue}>{data.patientName}</Text>
                         <Text style={styles.patientLabel}>HISTORIA CLÍNICA N°: </Text>
                         <Text style={styles.patientValue}>{data.clinicHistory}</Text>
-                        <Text style={styles.patientLabelCie}>CIE 10</Text>
+                        <Text style={styles.patientLabelCie}>CIE 10 </Text>
+                        <Text style={styles.patientValue}>{data.diseaseTypeCode}</Text>
                     </View>
                     <View style={styles.patientRowLast}>
                         <Text style={styles.patientLabelIdentification}>DOCUMENTO IDENTIDAD: </Text>
@@ -516,8 +531,8 @@ export const PrescriptionPDF: React.FC<PrescriptionPDFProps> = ({ data }) => (
                     </View>
                     {data.medications.map((med) => (
                         <View key={med.id} style={styles.tableRow}>
-                            <Text style={[styles.tableCellMed, styles.tableCellValue]}>{med.name}</Text>
-                            <Text style={[styles.tableCellQty, styles.tableCellValue]}>{med.quantity}</Text>
+                            <Text style={[styles.tableCellMedValue, styles.tableCellValue]}>{med.name}</Text>
+                            <Text style={[styles.tableCellQtyValue, styles.tableCellValue]}>{med.quantity}</Text>
                         </View>
                     ))}
                     {/* Empty rows */}
@@ -608,7 +623,7 @@ export const PrescriptionPDF: React.FC<PrescriptionPDFProps> = ({ data }) => (
                 <View style={styles.bottomSection}>
                     <View style={styles.prescriberBottom}>
                         <Text style={styles.label}>PRESCRIPTOR</Text>
-                        <Text>{'\n'}</Text>
+                        <Text>{data.prescriberName}</Text>
                         <Text>{'\n'}</Text>
                         <Text>{'\n'}</Text>
                         <Text>{'\n'}</Text>

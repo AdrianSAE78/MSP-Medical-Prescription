@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import type { PrescriptionData, Medication, Indication } from '../types/prescription';
+import { getNextPrescriptionNumber } from '../api/api';
 
 export const usePrescriptionForm = () => {
   const [formData, setFormData] = useState<PrescriptionData>({
@@ -7,6 +8,7 @@ export const usePrescriptionForm = () => {
     date: new Date().toISOString().split('T')[0],
     patientName: '',
     clinicHistory: '',
+    diseaseTypeCode: '',
     identification: '',
     years: '',
     months: '',
@@ -15,7 +17,7 @@ export const usePrescriptionForm = () => {
     prescriberName: '',
     patientNameIndications: '',
     dateIndications: new Date().toISOString().split('T')[0],
-    recipeNumber: Math.floor(Math.random() * 1000000000).toString(),
+    recipeNumber: '000000', // Valor temporal mientras se carga
     indications: [],
     warnings: '',
     physicalActivity: '',
@@ -25,7 +27,16 @@ export const usePrescriptionForm = () => {
     healthCenter: 'CHILIBULO A LLOA SALUD',
   });
 
-  const updateField = (field: keyof PrescriptionData, value: any) => {
+  // Obtener el siguiente número de receta al montar el componente
+  useEffect(() => {
+    const loadNextRecipeNumber = async () => {
+      const nextNumber = await getNextPrescriptionNumber();
+      setFormData(prev => ({ ...prev, recipeNumber: nextNumber }));
+    };
+    loadNextRecipeNumber();
+  }, []);
+
+  const updateField = (field: keyof PrescriptionData, value: unknown) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 

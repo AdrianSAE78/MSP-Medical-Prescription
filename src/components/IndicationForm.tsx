@@ -1,11 +1,17 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import type { Indication } from '../types/prescription';
+import { SearchableSelect } from './SearchableSelect';
+import { getProducts } from '../api/api';
+import type { Products } from '../api/types/apiTypes';
 
 interface IndicationFormProps {
   onAdd: (indication: Indication) => void;
 }
 
 export const IndicationForm: React.FC<IndicationFormProps> = ({ onAdd }) => {
+  const [products, setProducts] = useState<Products[]>([]);
+  const [loadingProducts, setLoadingProducts] = useState(true);
+  const [selectedProductId, setSelectedProductId] = useState<number | null>(null);
   const [medication, setMedication] = useState('');
   const [viaAdmin, setViaAdmin] = useState('');
   const [dose, setDose] = useState('');
@@ -16,9 +22,21 @@ export const IndicationForm: React.FC<IndicationFormProps> = ({ onAdd }) => {
   const [afternoon, setAfternoon] = useState(false);
   const [night, setNight] = useState(false);
 
+  // Cargar productos al montar el componente
+  useEffect(() => {
+    const loadProducts = async () => {
+      const data = await getProducts();
+      if (data) {
+        setProducts(data);
+      }
+      setLoadingProducts(false);
+    };
+    loadProducts();
+  }, []);
+
   const handleAdd = () => {
     if (medication && viaAdmin && dose && frequency && duration) {
-      const newIndication = {
+      const newIndication: Indication = {
         id: Date.now().toString(),
         medication,
         viaAdmin,
@@ -29,6 +47,7 @@ export const IndicationForm: React.FC<IndicationFormProps> = ({ onAdd }) => {
         noon,
         afternoon,
         night,
+        productId: selectedProductId || undefined,
       };
       onAdd(newIndication);
       // Reset form
@@ -41,7 +60,7 @@ export const IndicationForm: React.FC<IndicationFormProps> = ({ onAdd }) => {
       setNoon(false);
       setAfternoon(false);
       setNight(false);
-    } else {
+      setSelectedProductId(null);
     }
   };
 
@@ -55,13 +74,22 @@ export const IndicationForm: React.FC<IndicationFormProps> = ({ onAdd }) => {
   return (
     <div className="space-y-3 border-t pt-3">
       <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
-        <input
-          type="text"
-          placeholder="Medicamento"
+        <SearchableSelect
+          options={products.map(p => ({
+            value: p.product_name,
+            label: p.product_name,
+            data: p
+          }))}
           value={medication}
-          onChange={(e) => setMedication(e.target.value)}
-          onKeyDown={handleKeyDown}
-          className="border border-gray-300 rounded text-gray-700 px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+          onChange={(value, data) => {
+            setMedication(value);
+            const product = data as Products;
+            if (product) {
+              setSelectedProductId(product.id);
+            }
+          }}
+          placeholder={loadingProducts ? "Cargando..." : "Medicamento"}
+          disabled={loadingProducts}
         />
         <input
           type="text"

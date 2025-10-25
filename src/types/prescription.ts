@@ -2,6 +2,7 @@ export interface Medication {
   id: string;
   name: string;
   quantity: string;
+  productId?: number; // ID del producto en la base de datos
 }
 
 export interface Indication {
@@ -15,6 +16,7 @@ export interface Indication {
   noon: boolean;
   afternoon: boolean;
   night: boolean;
+  productId?: number; // ID del producto en la base de datos
 }
 
 export interface PrescriptionData {
@@ -22,6 +24,8 @@ export interface PrescriptionData {
   date: string;
   patientName: string;
   clinicHistory: string;
+  diseaseTypeCode: string;
+  diseaseTypeId?: number; // ID del tipo de enfermedad en la base de datos
   identification: string;
   years: string;
   months: string;
@@ -38,4 +42,5 @@ export interface PrescriptionData {
   coordination?: string;
   district?: string;
   healthCenter?: string;
+  userId?: string; // ID del usuario que crea la prescripción
 }
