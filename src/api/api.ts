@@ -9,7 +9,7 @@ export default async function getDiseaseType(): Promise<DiseaseType[] | null> {
     while (true) {
         const { data, error } = await supabase
             .from('DiseaseType')
-            .select('code, description')
+            .select('id, code, description')
             .range(from, from + batchSize - 1);
 
         if (error) {
