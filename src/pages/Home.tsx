@@ -15,6 +15,8 @@ export default function Home() {
         updateField,
         addMedication,
         removeMedication,
+        addDiseaseType,
+        removeDiseaseType,
     } = usePrescriptionForm();
 
     // Cargar tipos de enfermedad al montar el componente
@@ -47,6 +49,8 @@ export default function Home() {
                     updateField={updateField}
                     addMedication={addMedication}
                     removeMedication={removeMedication}
+                    addDiseaseType={addDiseaseType}
+                    removeDiseaseType={removeDiseaseType}
                     diseaseTypes={diseaseTypes}
                     loadingDiseaseTypes={loadingDiseaseTypes}
                     onContinue={() => setCurrentStep('indications')}

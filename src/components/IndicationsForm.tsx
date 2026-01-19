@@ -5,6 +5,7 @@ import type { CreatePrescriptionInput } from '../api/types/apiTypes';
 import { createPrescriptionWithProducts } from '../api/api';
 import { useAuth } from '../hooks/useAuth';
 import { useState } from 'react';
+import { convertDoseToWords } from '../lib/numberToWords';
 
 interface IndicationsFormProps {
     formData: PrescriptionData;
@@ -29,6 +30,7 @@ export const IndicationsForm: React.FC<IndicationsFormProps> = ({
             indication: formData.indications.find(ind => ind.medication === med.name)
         }))
     );
+    console.log('formData', formData); // Debug
 
     const updateMedicationIndication = (medId: string, field: keyof Indication, value: unknown) => {
         setMedicationIndications(prev => prev.map(mi => {
@@ -45,12 +47,29 @@ export const IndicationsForm: React.FC<IndicationsFormProps> = ({
                     noon: false,
                     afternoon: false,
                     night: false,
+                    dose_write: ''
                 };
                 return {
                     ...mi,
                     indication: {
                         ...currentIndication,
                         [field]: value
+                    }
+                };
+            }
+            return mi;
+        }));
+    };
+
+    const autoFillDoseWrite = (medId: string) => {
+        setMedicationIndications(prev => prev.map(mi => {
+            if (mi.medication.id === medId && mi.indication?.dose) {
+                const doseWords = convertDoseToWords(mi.indication.dose);
+                return {
+                    ...mi,
+                    indication: {
+                        ...mi.indication,
+                        dose_write: doseWords
                     }
                 };
             }
@@ -85,7 +104,6 @@ export const IndicationsForm: React.FC<IndicationsFormProps> = ({
                     date: new Date(formData.date),
                     patient_name: formData.patientName,
                     medical_record_number: formData.clinicHistory,
-                    disease_type_id: formData.diseaseTypeId?.toString() || '',
                     identification: formData.identification,
                     years_old: formData.years,
                     months_old: formData.months,
@@ -107,7 +125,9 @@ export const IndicationsForm: React.FC<IndicationsFormProps> = ({
                     midday: mi.indication!.noon,
                     afternoon: mi.indication!.afternoon,
                     evening: mi.indication!.night,
-                }))
+                    dose_write: mi.indication!.dose_write,
+                })),
+                disease_ids: formData.diseaseTypes.map(dt => dt.id) // Array de IDs de tipos de enfermedad
             };
 
             // 3. Guardar en Supabase
@@ -224,6 +244,7 @@ export const IndicationsForm: React.FC<IndicationsFormProps> = ({
                                     <th className="px-2 py-2 text-gray-700">MEDICAMENTO</th>
                                     <th className="px-2 py-2 text-gray-700">VIA ADMIN.</th>
                                     <th className="px-2 py-2 text-gray-700">DOSIS</th>
+                                    <th className="px-2 py-2 text-gray-700">DOSIS (ESCRITO)</th>
                                     <th className="px-2 py-2 text-gray-700">FRECUENCIA</th>
                                     <th className="px-2 py-2 text-gray-700">DURACION</th>
                                     <th className="px-2 py-2 text-gray-700">MAÑANA</th>
@@ -255,6 +276,25 @@ export const IndicationsForm: React.FC<IndicationsFormProps> = ({
                                                 className="w-full border border-gray-300 text-gray-700 rounded px-2 py-1 text-xs"
                                                 placeholder="Ej: 500mg"
                                             />
+                                        </td>
+                                        <td className="px-2 py-2 border-t">
+                                            <div className="flex gap-1 items-center">
+                                                <input 
+                                                    type="text" 
+                                                    value={mi.indication?.dose_write || ''}
+                                                    onChange={(e) => updateMedicationIndication(mi.medication.id, 'dose_write', e.target.value)}
+                                                    className="flex-1 border border-gray-300 text-gray-700 rounded px-2 py-1 text-xs"
+                                                    placeholder="Ej: quinientos miligramos"
+                                                />
+                                                <button
+                                                    type="button"
+                                                    onClick={() => autoFillDoseWrite(mi.medication.id)}
+                                                    className="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded text-xs whitespace-nowrap"
+                                                    title="Convertir dosis a palabras"
+                                                >
+                                                    🔄
+                                                </button>
+                                            </div>
                                         </td>
                                         <td className="px-2 py-2 border-t">
                                             <input 

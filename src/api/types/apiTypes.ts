@@ -21,7 +21,6 @@ export interface Prescription {
     date: Date;
     patient_name: string;
     medical_record_number: string;
-    disease_type_id: string;
     identification: string;
     years_old: string;
     months_old: string;
@@ -47,6 +46,20 @@ export interface PrescriptionProducts {
     midday: boolean;
     afternoon: boolean;
     evening: boolean;
+    dose_write: string;
+}
+
+// Tabla intermedia para la relación muchos-a-muchos entre Prescription y DiseaseType
+export interface PrescriptionDisease {
+    id: number;
+    prescription_id: number;
+    disease_id: number;
+    created_at: string;
+}
+
+// Tipo extendido para cuando traemos PrescriptionDisease con información del DiseaseType
+export interface PrescriptionDiseaseWithDetails extends PrescriptionDisease {
+    DiseaseType: DiseaseType;
 }
 
 // Tipo extendido para cuando traemos PrescriptionProducts con información del Product
@@ -54,13 +67,15 @@ export interface PrescriptionProductWithDetails extends PrescriptionProducts {
     Products: Products;
 }
 
-// Tipo completo de Prescription con sus productos relacionados
+// Tipo completo de Prescription con sus productos y enfermedades relacionadas
 export interface PrescriptionWithProducts extends Prescription {
     PrescriptionProducts: PrescriptionProductWithDetails[];
+    PrescriptionDisease: PrescriptionDiseaseWithDetails[];
 }
 
-// Tipo para crear una nueva prescripción con sus productos
+// Tipo para crear una nueva prescripción con sus productos y enfermedades
 export interface CreatePrescriptionInput {
     prescription: Omit<Prescription, 'id' | 'created_at'>;
     products: Omit<PrescriptionProducts, 'id' | 'prescription_id'>[];
+    disease_ids: number[]; // Array de IDs de tipos de enfermedad
 }

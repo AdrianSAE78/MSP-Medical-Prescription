@@ -2,6 +2,7 @@ export interface Medication {
   id: string;
   name: string;
   quantity: string;
+  quantity_write: string; // Cantidad escrita en palabras
   productId?: number; // ID del producto en la base de datos
 }
 
@@ -10,6 +11,7 @@ export interface Indication {
   medication: string;
   viaAdmin: string;
   dose: string;
+  dose_write: string;
   frequency: string;
   duration: string;
   morning: boolean;
@@ -24,8 +26,7 @@ export interface PrescriptionData {
   date: string;
   patientName: string;
   clinicHistory: string;
-  diseaseTypeCode: string;
-  diseaseTypeId?: number; // ID del tipo de enfermedad en la base de datos
+  diseaseTypes: Array<{ id: number; code: string; description: string }>; // Array de tipos de enfermedad seleccionados
   identification: string;
   years: string;
   months: string;

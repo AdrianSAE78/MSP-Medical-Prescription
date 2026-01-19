@@ -5,6 +5,7 @@ interface Medication {
     id: string;
     name: string;
     quantity: string;
+    quantity_write: string;
 }
 
 interface Indication {
@@ -12,6 +13,7 @@ interface Indication {
     medication: string;
     viaAdmin: string;
     dose: string;
+    dose_write: string;
     frequency: string;
     duration: string;
     morning?: boolean;
@@ -25,7 +27,7 @@ interface PrescriptionData {
     date: string;
     patientName: string;
     clinicHistory: string;
-    diseaseTypeCode: string;
+    diseaseTypes: Array<{ id: number; code: string; description: string }>;
     identification: string;
     years: string;
     months: string;
@@ -452,7 +454,11 @@ interface PrescriptionPDFProps {
     data: PrescriptionData;
 }
 
-export const PrescriptionPDF: React.FC<PrescriptionPDFProps> = ({ data }) => (
+export const PrescriptionPDF: React.FC<PrescriptionPDFProps> = ({ data }) => {
+    // Debug: verificar datos de medicamentos
+    console.log('Medicamentos en PDF:', data.medications);
+    
+    return (
     <Document>
         <Page size="A4" style={styles.page}>
             <View style={styles.container}>
@@ -507,7 +513,9 @@ export const PrescriptionPDF: React.FC<PrescriptionPDFProps> = ({ data }) => (
                         <Text style={styles.patientLabel}>HISTORIA CLÍNICA N°: </Text>
                         <Text style={styles.patientValue}>{data.clinicHistory}</Text>
                         <Text style={styles.patientLabelCie}>CIE 10 </Text>
-                        <Text style={styles.patientValue}>{data.diseaseTypeCode}</Text>
+                        <Text style={styles.patientValue}>
+                            {data.diseaseTypes.map(dt => dt.code).join(', ') || 'N/A'}
+                        </Text>
                     </View>
                     <View style={styles.patientRowLast}>
                         <Text style={styles.patientLabelIdentification}>DOCUMENTO IDENTIDAD: </Text>
@@ -532,7 +540,10 @@ export const PrescriptionPDF: React.FC<PrescriptionPDFProps> = ({ data }) => (
                     {data.medications.map((med) => (
                         <View key={med.id} style={styles.tableRow}>
                             <Text style={[styles.tableCellMedValue, styles.tableCellValue]}>{med.name}</Text>
-                            <Text style={[styles.tableCellQtyValue, styles.tableCellValue]}>{med.quantity}</Text>
+                            <Text style={[styles.tableCellQtyValue, styles.tableCellValue]}>
+                                {med.quantity}
+                                {med.quantity_write ? `\n(${med.quantity_write})` : ''}
+                            </Text>
                         </View>
                     ))}
                     {/* Empty rows */}
@@ -586,7 +597,10 @@ export const PrescriptionPDF: React.FC<PrescriptionPDFProps> = ({ data }) => (
                         <View key={ind.id} style={styles.indicationsTableRow}>
                             <Text style={[styles.indColMed, styles.indColValue]}>{ind.medication}</Text>
                             <Text style={[styles.indColVia, styles.indColValue]}>{ind.viaAdmin}</Text>
-                            <Text style={[styles.indColDosis, styles.indColValue]}>{ind.dose}</Text>
+                            <Text style={[styles.indColDosis, styles.indColValue]}>
+                                {ind.dose}
+                                {ind.dose_write && `\n(${ind.dose_write})`}
+                            </Text>
                             <Text style={[styles.indColFreq, styles.indColValue]}>{ind.frequency}</Text>
                             <Text style={[styles.indColDur, styles.indColValue]}>{ind.duration}</Text>
                             <View style={styles.indColTime}>
@@ -652,4 +666,5 @@ export const PrescriptionPDF: React.FC<PrescriptionPDFProps> = ({ data }) => (
             </Text>
         </Page>
     </Document>
-);
+    );
+};

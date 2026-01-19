@@ -8,6 +8,8 @@ interface PrescriptionFormProps {
     updateField: (field: keyof PrescriptionData, value: unknown) => void;
     addMedication: (medication: Medication) => void;
     removeMedication: (id: string) => void;
+    addDiseaseType: (diseaseType: { id: number; code: string; description: string }) => void;
+    removeDiseaseType: (id: number) => void;
     diseaseTypes: DiseaseType[];
     loadingDiseaseTypes: boolean;
     onContinue: () => void;
@@ -18,6 +20,8 @@ export const PrescriptionForm: React.FC<PrescriptionFormProps> = ({
     updateField,
     addMedication,
     removeMedication,
+    addDiseaseType,
+    removeDiseaseType,
     diseaseTypes,
     loadingDiseaseTypes,
     onContinue,
@@ -117,18 +121,45 @@ export const PrescriptionForm: React.FC<PrescriptionFormProps> = ({
                                 label: `${dt.code} - ${dt.description}`,
                                 data: dt
                             }))}
-                            value={formData.diseaseTypeCode}
-                            onChange={(value, data) => {
-                                updateField('diseaseTypeCode', value);
+                            value=""
+                            onChange={(_value, data) => {
                                 const diseaseType = data as DiseaseType;
                                 if (diseaseType) {
-                                    updateField('diseaseTypeId', diseaseType.id);
+                                    addDiseaseType({
+                                        id: diseaseType.id,
+                                        code: diseaseType.code,
+                                        description: diseaseType.description
+                                    });
                                 }
                             }}
                             placeholder={loadingDiseaseTypes ? "Cargando..." : "Buscar por código o descripción"}
                             filterBy="both"
                             disabled={loadingDiseaseTypes}
                         />
+                        
+                        {/* Lista de enfermedades seleccionadas */}
+                        {formData.diseaseTypes.length > 0 && (
+                            <div className="mt-2 space-y-1">
+                                {formData.diseaseTypes.map((dt) => (
+                                    <div 
+                                        key={dt.id} 
+                                        className="flex items-center justify-between bg-blue-50 border border-blue-200 rounded px-2 py-1 text-sm"
+                                    >
+                                        <span className="text-gray-700">
+                                            {dt.code} - {dt.description}
+                                        </span>
+                                        <button
+                                            type="button"
+                                            onClick={() => removeDiseaseType(dt.id)}
+                                            className="text-red-600 hover:text-red-800 font-bold ml-2"
+                                            title="Eliminar"
+                                        >
+                                            ✕
+                                        </button>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
                     </div>
                     <div>
                         <label htmlFor="identification" className="block text-sm font-medium text-gray-700 mb-1">
@@ -214,7 +245,12 @@ export const PrescriptionForm: React.FC<PrescriptionFormProps> = ({
                             {formData.medications.map((med) => (
                                 <tr key={med.id}>
                                     <td className="px-2 py-2 border-t text-gray-700">{med.name}</td>
-                                    <td className="px-2 py-2 border-t text-gray-700">{med.quantity}</td>
+                                    <td className="px-2 py-2 border-t text-gray-700">
+                                        {med.quantity}
+                                        {med.quantity_write && (
+                                            <div className="text-xs text-gray-500 italic">({med.quantity_write})</div>
+                                        )}
+                                    </td>
                                     <td className="px-2 py-2 border-t text-gray-700">
                                         <button
                                             type="button"
