@@ -41,6 +41,7 @@ export const IndicationForm: React.FC<IndicationFormProps> = ({ onAdd }) => {
         medication,
         viaAdmin,
         dose,
+        dose_write: '', 
         frequency,
         duration,
         morning,
