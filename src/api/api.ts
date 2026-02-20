@@ -177,13 +177,13 @@ export async function createPrescriptionWithProducts(
 
 /**
  * Obtiene el siguiente número de receta disponible
- * Rango permitido: 1797304 - 1797504
+ * Rango permitido: 1810421 - 1811420
  * @returns El siguiente número de receta formateado como string
  * @throws Error si se alcanzó el límite máximo de recetas
  */
 export async function getNextPrescriptionNumber(): Promise<string> {
-    const MIN_NUMBER = 1797304;
-    const MAX_NUMBER = 1797504;
+    const MIN_NUMBER = 1810421;
+    const MAX_NUMBER = 1811420;
     
     try {
         // Obtener todos los números de receta de la base de datos
