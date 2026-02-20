@@ -189,7 +189,9 @@ export async function getNextPrescriptionNumber(): Promise<string> {
         // Obtener todos los números de receta de la base de datos
         const { data, error } = await supabase
             .from('Prescription')
-            .select('prescription_number');
+            .select('prescription_number')
+            .order('id', { ascending: false })
+            .limit(1);
 
         if (error) {
             console.error('Error fetching last prescription number:', error);
@@ -202,11 +204,15 @@ export async function getNextPrescriptionNumber(): Promise<string> {
             return MIN_NUMBER.toString();
         }
 
+        console.log('Fetched prescription numbers:', data);
+
         // Convertir todos los números a enteros y ordenarlos
         const numbers = data
             .map(item => parseInt(item.prescription_number, 10))
             .filter(num => !isNaN(num)) // Filtrar valores inválidos
             .sort((a, b) => b - a); // Ordenar descendente
+
+        console.log('Existing prescription numbers:', numbers);
 
         if (numbers.length === 0) {
             return MIN_NUMBER.toString();
